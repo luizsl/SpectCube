@@ -5,6 +5,7 @@ Created on Wed Jul  7 18:52:18 2021
 """
 
 import numpy as np
+from util import build_wave_array
 from scipy import interpolate
 
 
@@ -203,12 +204,9 @@ def resampling(flux, old_wave, old_sampling_type, new_wave = None,
 
     assert old_sampling_type and new_sampling_type in ['linear', 'log', 'ln']
 
-    if flux.ndim < 3:
-        flux = _extend_dim(flux)
-    if old_wave.ndim < 3:
-        old_wave = _extend_dim(old_wave)
-    if new_wave.ndim < 3:
-        new_wave = _extend_dim(new_wave)
+    flux = _extend_dim(flux)
+    old_wave = _extend_dim(old_wave)
+    new_wave = _extend_dim(new_wave)
         
     if flux_err is None:
             new_flux = _resampling_nd(flux,
@@ -218,8 +216,7 @@ def resampling(flux, old_wave, old_sampling_type, new_wave = None,
             new_wave = _reduce_dim(new_wave)
             return new_flux, new_wave
     else:
-        if flux_err.ndim <3:
-            flux_err = _extend_dim(flux_err)
+        flux_err = _extend_dim(flux_err)
             
         new_flux, new_flux_err = _resampling_nd(flux,
                                                 old_wave, old_sampling_type,
