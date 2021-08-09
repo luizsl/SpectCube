@@ -7,9 +7,8 @@ from util import build_wave_array
 from spectres import spectres
 from time import perf_counter as clock
 
-
 def measure_runtime(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
-                    flux_err = None, rep = 10_000):
+                    flux_err = None, rep = 10):
     
     runtime = np.empty(rep)
     
@@ -37,22 +36,24 @@ def build_artificial_signal(wave, sampling_type, size):
     
     return flux, wave_array
 
+##############################################################################
+#                       Produce artificial signal
 #
-# Produce artificial signal
-
-# Create artifical signal f(x) with 100 points (pixels) linearly spaced, 
+# Create artifical signal f(x) with 1000 points (pixels) linearly spaced, 
 # with 1 < x < 100.
+##############################################################################
 
 size = 1000
 wave_lin = np.linspace(1, size, size)
 signal = np.sin(np.linspace(0, 6*np.pi, size))
 
-# Runtime test increasing number of output pixels
+##############################################################################
+#                               Runtime 
+##############################################################################
 
-# Create array to keep runtime results
-array_pixel = np.array([1e2, 1e4, 1e5, 5e5, 2e6, 4e6, 7e6, 1e7],
+# Increasing number of output pixels
+array_pixel = np.array([1e2, 1e4, 1e5, 5e5, 2e6, 5e6, 8e6, 1e7],
                        dtype = int)
-
 n_pixel = len(array_pixel)
 run_med_pixel = np.zeros(n_pixel)
 run_std_pixel = np.zeros(n_pixel)
@@ -70,35 +71,11 @@ for index, i in enumerate(array_pixel):
                     new_wave = wave,
                     new_sampling_type = 'ln',
                     rep = 1_000)
-    
-# Plot for increasing number of output pixels
 
-fig, ax = plt.subplots()
-# ax.plot(array_pixel, run_med_pixel, label = 'Average runtime')
-ax.scatter(array_pixel, run_med_pixel, label = 'Average runtime')
 
-ax.fill_between(array_pixel, run_med_pixel-run_std_pixel,
-                run_med_pixel+run_std_pixel,
-                color = 'Grey',alpha = 0.2,
-                label = r'$\sigma$ runtime')
-
-# also plot a linear function to comparison
-fit_linear = np.polyfit(array_pixel, run_med_pixel, 1)
-O_n = np.poly1d(fit_linear)
-ax.plot(array_pixel, O_n(array_pixel) , label = 'O(n)', 
-        color = 'darkred', ls = 'dashed')
-
-ax.set_xlabel('Number of output points')
-ax.set_ylabel('Runtime (ms)')
-plt.legend()
-
-# Runtime test increasing number of spectrums
-
-# Create 2d-arrays to keep runtime results
-
-array_spectra = np.array([1, 1e3, 2e4, 6e4, 8e4, 1e5],
+# Runtime test for increasing number of spectrums
+array_spectra = np.array([1, 1e3, 2e4, 4e4, 6e4, 8e4, 1e5],
                        dtype = int)
-
 n_spectra = len(array_spectra)
 run_med_spectra = np.zeros(n_spectra)
 run_std_spectra = np.zeros(n_spectra)
@@ -120,27 +97,69 @@ for index, j in enumerate(array_spectra):
                     new_sampling_type = 'ln',
                     rep = 10)
 
-# Plot for increasing number of spectrums
+##############################################################################
+#                               Plot
+##############################################################################
 
-fig, ax = plt.subplots()
-ax.scatter(array_spectra, run_med_spectra/1e3, label = 'Average runtime')
-ax.fill_between(array_spectra,
+# Setting aesthetics
+plt.rcParams.update({'text.usetex' : True,
+                     'text.latex.preamble' : '\\usepackage{amsmath}',
+                     'font.family' : 'sans-serif',
+                     'font.serif' : 'Times',
+                     'font.size' : 12,
+                     'figure.autolayout' : True,
+                     'xtick.top' : True,
+                     'xtick.minor.visible' : True,
+                     'xtick.direction' : 'in',
+                     'ytick.right' : True,
+                     'ytick.minor.visible' : True,
+                     'ytick.direction' : 'in',
+                     'savefig.bbox' : 'tight',
+                     'figure.figsize':  [6.4, 4.8],
+                     'axes.formatter.limits' : [-5, 5]
+                     })
+
+
+fig, (ax1, ax2) = plt.subplots(2, 1)
+
+# Plot for increasing number of output pixels
+ax1.scatter(array_pixel, run_med_pixel, label = 'Average runtime', 
+            color = 'navy')
+
+ax1.fill_between(array_pixel, run_med_pixel-run_std_pixel,
+                run_med_pixel+run_std_pixel,
+                color = 'Grey',alpha = 0.2,
+                label = r'$\sigma$ runtime')
+
+# linear function to comparison
+fit_linear = np.polyfit(array_pixel, run_med_pixel, 1)
+O_n = np.poly1d(fit_linear)
+ax1.plot(array_pixel, O_n(array_pixel) , label = 'O(n)', 
+        color = 'darkred', ls = 'dashed')
+
+ax1.set_xlabel('Number of output points')
+ax1.set_ylabel('Runtime (ms)')
+ax1.legend()
+
+# Plot for increasing number of spectrums
+ax2.scatter(array_spectra, run_med_spectra/1e3, label = 'Average runtime',
+            color = 'navy')
+ax2.fill_between(array_spectra,
                 (run_med_spectra-run_std_spectra)/1e3,
                 (run_med_spectra+run_std_spectra)/1e3,
                 color = 'Grey',alpha = 0.2,
                 label = r'$\sigma$ runtime')
 
-# also plot a linear function to comparison
+# Linear function to comparison
 fit_linear = np.polyfit(array_spectra, run_med_spectra/1e3, 1)
 O_n = np.poly1d(fit_linear)
-ax.plot(array_spectra, O_n(array_spectra) , label = 'O(n)', 
+ax2.plot(array_spectra, O_n(array_spectra) , label = 'O(n)', 
         color = 'darkred', ls = 'dashed')
 
-ax.set_xlabel('Number of spectrums')
-ax.set_ylabel('Runtime (s)')
+ax2.set_xlabel('Number of spectrums')
+ax2.set_ylabel('Average runtime (s)')
+ax2.legend()
 
+fig.align_labels()
 
-#%%
-# t2 = clock()
-# spectres(_reduce_dim(flux), _reduce_dim(old_wave), _reduce_dim(new_wave))
-# print((clock() - t2)*1000)
+plt.savefig('doc/figures/runtime.pdf')
