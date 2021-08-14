@@ -5,7 +5,7 @@ Created on Wed Jul  7 18:52:18 2021
 """
 
 import numpy as np
-from util import build_wave_array
+import util as util
 from scipy import interpolate
 
 
@@ -66,49 +66,49 @@ def _build_edges(wave, sampling_type):
         edges = np.append(edges, wave * np.e**(step/2.))
     return edges
 
-def _resampling_fast(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
-               flux_err = None):
+# def _resampling_fast(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
+#                flux_err = None):
 
-    # edges
-    old_edges = _build_edges(old_wave, sampling_type = old_sampling_type)
-    new_edges = _build_edges(new_wave, sampling_type = new_sampling_type)
+#     # edges
+#     old_edges = _build_edges(old_wave, sampling_type = old_sampling_type)
+#     new_edges = _build_edges(new_wave, sampling_type = new_sampling_type)
 
-    old_edges = _extend_dim(old_edges)
-    new_edges = _extend_dim(new_edges)
+#     old_edges = _extend_dim(old_edges)
+#     new_edges = _extend_dim(new_edges)
 
-    # intervals
-    old_inter = np.diff(old_edges, axis = 0)
-    new_inter = np.diff(new_edges, axis = 0)
+#     # intervals
+#     old_inter = np.diff(old_edges, axis = 0)
+#     new_inter = np.diff(new_edges, axis = 0)
 
-    # integrate and resample the spectrum
-    int_flux = np.cumsum(flux * old_inter, axis = 0)
-    zeros_layer = np.zeros_like(flux[0:1, ...])
-    int_flux = np.append(zeros_layer, int_flux, axis = 0)
+#     # integrate and resample the spectrum
+#     int_flux = np.cumsum(flux * old_inter, axis = 0)
+#     zeros_layer = np.zeros_like(flux[0:1, ...])
+#     int_flux = np.append(zeros_layer, int_flux, axis = 0)
 
-    f_interp = interpolate.interp1d(_reduce_dim(old_edges), int_flux, bounds_error = False,
-                                    axis = 0)
+#     f_interp = interpolate.interp1d(_reduce_dim(old_edges), int_flux, bounds_error = False,
+#                                     axis = 0)
 
-    # for i,j in np.ndindex(new_edges[0,...].shape):
-    # new_flux[:, i, j] = f_interp(new_edges[:, i, j])
+#     # for i,j in np.ndindex(new_edges[0,...].shape):
+#     # new_flux[:, i, j] = f_interp(new_edges[:, i, j])
 
-    new_flux = f_interp(new_edges[:, 0, 0])
-    new_flux = np.diff(new_flux, axis = 0)
-    new_flux = new_flux/new_inter
+#     new_flux = f_interp(new_edges[:, 0, 0])
+#     new_flux = np.diff(new_flux, axis = 0)
+#     new_flux = new_flux/new_inter
 
-    # if the uncertainty is provided it's also processed
-    if flux_err is not None:
-        int_err = np.append([0], np.cumsum(flux_err * old_inter))
+#     # if the uncertainty is provided it's also processed
+#     if flux_err is not None:
+#         int_err = np.append([0], np.cumsum(flux_err * old_inter))
 
-        e_interp = interpolate.interp1d(old_edges, np.square(int_err),
-                                        bounds_error = False)
+#         e_interp = interpolate.interp1d(old_edges, np.square(int_err),
+#                                         bounds_error = False)
 
-        new_flux_err = np.sqrt(e_interp(new_edges))
-        new_flux_err = np.ediff1d(new_flux_err)
-        new_flux_err = new_flux_err/new_inter
+#         new_flux_err = np.sqrt(e_interp(new_edges))
+#         new_flux_err = np.ediff1d(new_flux_err)
+#         new_flux_err = new_flux_err/new_inter
 
-        return new_flux, new_flux_err
-    else:
-        return new_flux
+#         return new_flux, new_flux_err
+#     else:
+#         return new_flux
 
 def _resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
                flux_err = None):
@@ -149,7 +149,7 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
     new_flux = np.zeros(shape = (new_wave.shape[0],) + flux[0,...].shape)
 
     if old_wave.shape[1:] == (1, 1):
-        if flux_err:
+        if flux_err is not None:
             new_flux_err = np.zeros(shape = (new_wave.shape[0],) + flux[0,...].shape)
             for i,j in np.ndindex(flux[0,...].shape):
                 new_flux[:, i, j], new_flux_err[:, i, j] = \
@@ -168,7 +168,7 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
 
 
     elif old_wave.shape[1:] > (1, 1):
-        if flux_err:
+        if flux_err is not None:
             new_flux_err = np.zeros(shape = (new_wave.shape[0],) + flux[0,...].shape)
             for i,j in np.ndindex(flux[0,...].shape):
                 new_flux[:, i, j], new_flux_err[:, i, j] = \
@@ -188,24 +188,13 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
     else:
         raise TypeError
 
-def build_wave_array(wave, sampling_type, size):
-    if sampling_type == 'linear':
-        wave_array = np.linspace(wave[0], wave[1], size, dtype = np.double)
-    elif sampling_type == 'log':
-        wave_array = np.logspace(np.log10(wave[0]), np.log10(wave[1]), size,
-                                 np.double(10.), dtype = np.double)
-    elif sampling_type == 'ln':
-        wave_array = np.logspace(np.log(wave[0]), np.log(wave[1]), size, np.e,
-                                 dtype = np.double)
-    return wave_array
-
-def resampling(flux, old_wave, old_sampling_type, new_wave = None,
-               new_sampling_type = None, flux_err = None):
+def resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
+               flux_err = None):
 
     assert old_sampling_type and new_sampling_type in ['linear', 'log', 'ln']
 
     flux = _extend_dim(flux)
-    old_wave = _extend_dim(old_wave)
+    old_wave = _extend_dim(old_wave) 
     new_wave = _extend_dim(new_wave)
         
     if flux_err is None:

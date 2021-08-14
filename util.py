@@ -31,8 +31,10 @@ def _reduce_dim(array):
 
 def build_wave_array(wave, sampling_type, size):
     
+    assert sampling_type in ['linear', 'log', 'ln']
+    
     if np.array(wave).ndim > 1:
-        wave_array = array_nd(wave, sampling_type, size)
+        wave_array = wave_array_nd(wave, sampling_type, size)
         return wave_array
     
     else:
@@ -47,7 +49,7 @@ def build_wave_array(wave, sampling_type, size):
             wave_array = np.e**wave_array
             return wave_array
         
-def array_nd(wave, sampling_type, size):
+def wave_array_nd(wave, sampling_type, size):
     wave = np.array(wave)
     wave = _extend_dim(wave)
     
@@ -58,4 +60,19 @@ def array_nd(wave, sampling_type, size):
                                                size)
 
     wave_array = _reduce_dim(wave_array)
+    return wave_array
+
+
+def fit_wave_interval(wave, sampling_type, size):
+    
+    assert sampling_type in ['linear', 'log', 'ln']
+    
+    if sampling_type == 'linear':
+        wave_array = np.linspace(wave[0], wave[1], size, dtype = np.double)
+    elif sampling_type == 'log':
+        wave_array = np.logspace(np.log10(wave[0]), np.log10(wave[1]), size,
+                                  np.double(10.), dtype = np.double)
+    elif sampling_type == 'ln':
+        wave_array = np.logspace(np.log(wave[0]), np.log(wave[1]), size, np.e,
+                                  dtype = np.double)
     return wave_array

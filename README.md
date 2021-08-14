@@ -1,1 +1,1 @@
-# SpectCube
+# SpeCube

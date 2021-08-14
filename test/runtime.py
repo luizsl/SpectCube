@@ -102,22 +102,7 @@ for index, j in enumerate(array_spectra):
 ##############################################################################
 
 # Setting aesthetics
-plt.rcParams.update({'text.usetex' : True,
-                     'text.latex.preamble' : '\\usepackage{amsmath}',
-                     'font.family' : 'sans-serif',
-                     'font.serif' : 'Times',
-                     'font.size' : 12,
-                     'figure.autolayout' : True,
-                     'xtick.top' : True,
-                     'xtick.minor.visible' : True,
-                     'xtick.direction' : 'in',
-                     'ytick.right' : True,
-                     'ytick.minor.visible' : True,
-                     'ytick.direction' : 'in',
-                     'savefig.bbox' : 'tight',
-                     'figure.figsize':  [6.4, 4.8],
-                     'axes.formatter.limits' : [-5, 5]
-                     })
+plt.style.use('fig_conf.mplstyle')
 
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
@@ -162,4 +147,4 @@ ax2.legend()
 
 fig.align_labels()
 
-plt.savefig('doc/figures/runtime.pdf')
+plt.savefig('../doc/figures/runtime.pdf')

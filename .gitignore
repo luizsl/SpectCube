@@ -1,1 +1,4 @@
 doc/
+data/
+example/
+.gitignore
