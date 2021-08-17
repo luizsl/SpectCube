@@ -70,9 +70,10 @@ def fit_wave_interval(wave, sampling_type, size):
     if sampling_type == 'linear':
         wave_array = _np.linspace(wave[0], wave[1], size, dtype = _np.double)
     elif sampling_type == 'log':
-        wave_array = _np.logspace(_np.log10(wave[0]), _np.log10(wave[1]), size,
-                                  _np.double(10.), dtype = _np.double)
-    elif sampling_type == 'ln':
-        wave_array = _np.logspace(_np.log(wave[0]), _np.log(wave[1]), size, _np.e,
+        wave_array = _np.logspace(_np.log10(wave[0]), _np.log10(wave[1]),
+                                  num = size, base = _np.double(10.),
                                   dtype = _np.double)
+    elif sampling_type == 'ln':
+        wave_array = _np.logspace(_np.log(wave[0]), _np.log(wave[1]),
+                                  num = size, base = _np.e, dtype = _np.double)
     return wave_array
