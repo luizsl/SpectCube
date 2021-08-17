@@ -1,0 +1,3 @@
+include spectcube/data/*.fits
+include spectcube/model/*.fits
+include spectcube/example/*
