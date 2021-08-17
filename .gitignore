@@ -2,4 +2,7 @@ doc/
 data/
 example/
 model/
+dist.tar.gz
+dist/
+spectcube.egg-info/
 .gitignore
