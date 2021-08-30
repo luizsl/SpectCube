@@ -1,7 +1,0 @@
-doc/
-dist.tar.gz
-dist/
-spectcube.egg-info/
-paper/
-test/
-.gitignore
