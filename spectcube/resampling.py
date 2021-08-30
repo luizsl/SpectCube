@@ -1,7 +1,7 @@
 """
 Created on Wed Jul  7 18:52:18 2021
 
-@author: luiz
+@author: Luiz Albérico
 """
 
 import numpy as np
@@ -10,6 +10,22 @@ from .util import _extend_dim, _reduce_dim
 
 
 def _build_edges_nd(wave, sampling_type):
+    """
+
+
+    Parameters
+    ----------
+    wave : TYPE
+        DESCRIPTION.
+    sampling_type : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    edges : TYPE
+        DESCRIPTION.
+
+    """
     if sampling_type == 'linear':
         step = wave[[1], ...] - wave[[0], ...]
         edges = wave[[0], ...] - step/2.
@@ -25,6 +41,22 @@ def _build_edges_nd(wave, sampling_type):
     return edges
 
 def _build_edges(wave, sampling_type):
+    """
+
+
+    Parameters
+    ----------
+    wave : TYPE
+        DESCRIPTION.
+    sampling_type : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    edges : TYPE
+        DESCRIPTION.
+
+    """
     if sampling_type == 'linear':
         step = wave[1] - wave[0]
         edges = wave[0] - step/2.
@@ -41,6 +73,30 @@ def _build_edges(wave, sampling_type):
 
 def _resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
                flux_err = None):
+    """
+
+
+    Parameters
+    ----------
+    flux : TYPE
+        DESCRIPTION.
+    old_wave : TYPE
+        DESCRIPTION.
+    old_sampling_type : TYPE
+        DESCRIPTION.
+    new_wave : TYPE
+        DESCRIPTION.
+    new_sampling_type : TYPE
+        DESCRIPTION.
+    flux_err : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     # edges
     old_edges = _build_edges(old_wave, old_sampling_type)
     new_edges = _build_edges(new_wave, new_sampling_type)
@@ -73,7 +129,35 @@ def _resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
 
 def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
                   new_sampling_type, flux_err = None):
+    """
 
+
+    Parameters
+    ----------
+    flux : TYPE
+        DESCRIPTION.
+    old_wave : TYPE
+        DESCRIPTION.
+    old_sampling_type : TYPE
+        DESCRIPTION.
+    new_wave : TYPE
+        DESCRIPTION.
+    new_sampling_type : TYPE
+        DESCRIPTION.
+    flux_err : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Raises
+    ------
+    TypeError
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     new_flux = np.zeros(shape = (new_wave.shape[0],) + flux[0,...].shape)
 
     if old_wave.shape[1:] == (1, 1):
@@ -118,7 +202,34 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
 
 def resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
                flux_err = None):
+    """
 
+
+    Parameters
+    ----------
+    flux : TYPE
+        DESCRIPTION.
+    old_wave : TYPE
+        DESCRIPTION.
+    old_sampling_type : TYPE
+        DESCRIPTION.
+    new_wave : TYPE
+        DESCRIPTION.
+    new_sampling_type : TYPE
+        DESCRIPTION.
+    flux_err : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    new_flux : TYPE
+        DESCRIPTION.
+    new_wave : TYPE
+        DESCRIPTION.
+    TYPE
+        DESCRIPTION.
+
+    """
     assert old_sampling_type and new_sampling_type in ['linear', 'log', 'ln']
 
     flux = _extend_dim(flux)
@@ -126,12 +237,12 @@ def resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
     new_wave = _extend_dim(new_wave)
 
     if flux_err is None:
-            new_flux = _resampling_nd(flux,
-                                      old_wave, old_sampling_type,
-                                      new_wave, new_sampling_type)
-            new_flux = _reduce_dim(new_flux)
-            new_wave = _reduce_dim(new_wave)
-            return new_flux, new_wave, None
+        new_flux = _resampling_nd(flux,
+                                  old_wave, old_sampling_type,
+                                  new_wave, new_sampling_type)
+        new_flux = _reduce_dim(new_flux)
+        new_wave = _reduce_dim(new_wave)
+        return new_flux, new_wave, None
     else:
         flux_err = _extend_dim(flux_err)
 
