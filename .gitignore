@@ -1,6 +1,4 @@
 doc/
-data/
-model/
 dist.tar.gz
 dist/
 spectcube.egg-info/
