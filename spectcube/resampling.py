@@ -11,19 +11,20 @@ from .util import _extend_dim, _reduce_dim
 
 def _build_edges_nd(wave, sampling_type):
     """
-
+    Currently not used
 
     Parameters
     ----------
-    wave : TYPE
-        DESCRIPTION.
-    sampling_type : TYPE
-        DESCRIPTION.
+    wave : numpy.ndarray
+        Array with the wavelengths.
+    sampling_type : string
+        Sampling type of the array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
 
     Returns
     -------
-    edges : TYPE
-        DESCRIPTION.
+    edges : numpy.ndarray
+        Array with the edges of the wavelength bins.
 
     """
     if sampling_type == 'linear':
@@ -42,19 +43,21 @@ def _build_edges_nd(wave, sampling_type):
 
 def _build_edges(wave, sampling_type):
     """
-
+    Calculates edges of bins of given wavelength given the center value of the
+    bin and the type of sampling.
 
     Parameters
     ----------
-    wave : TYPE
-        DESCRIPTION.
-    sampling_type : TYPE
-        DESCRIPTION.
+    wave : numpy.ndarray
+        Array with the wavelengths.
+    sampling_type : string
+        Sampling type of the array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
 
     Returns
     -------
-    edges : TYPE
-        DESCRIPTION.
+    edges : numpy.ndarray
+        Array with the edges of the wavelength bins.
 
     """
     if sampling_type == 'linear':
@@ -74,28 +77,34 @@ def _build_edges(wave, sampling_type):
 def _resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
                flux_err = None):
     """
-
+    Main function to perform the resampling given the array with the fluxes,
+    their sampling wavelengths and sampling type. In addition to the array with
+    values of the new wavelength after resampling and the new type of sampling.
 
     Parameters
     ----------
-    flux : TYPE
-        DESCRIPTION.
-    old_wave : TYPE
-        DESCRIPTION.
-    old_sampling_type : TYPE
-        DESCRIPTION.
-    new_wave : TYPE
-        DESCRIPTION.
-    new_sampling_type : TYPE
-        DESCRIPTION.
-    flux_err : TYPE, optional
-        DESCRIPTION. The default is None.
+    flux : numpy.ndarray
+        Array with fluxes.
+    old_wave : numpy.ndarray
+        Array with the wavelength for each flux value.
+    old_sampling_type : string
+        Sampling type of the input array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    new_wave : numpy.ndarray
+        Array with the wavelength for each new flux value.
+    new_sampling_type : string
+        Sampling type of the output array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    flux_err : numpy.ndarray, optional
+        Flux uncertainty (standard deviation). The default is None.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
-
+    new_flux : numpy.ndarray
+        New array with fluxes after resampling.
+    new_flux_err : numpy.ndarray
+        Array with uncertainty in the form of standard deviation. If the
+        uncertainties are not passed returns None.
     """
     # edges
     old_edges = _build_edges(old_wave, old_sampling_type)
@@ -130,22 +139,24 @@ def _resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
 def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
                   new_sampling_type, flux_err = None):
     """
-
+    Private function to perform resampling by calling the _resampling function.
 
     Parameters
     ----------
-    flux : TYPE
+    flux : numpy.ndarray
+        Array with fluxes.
+    old_wave : numpy.ndarray
+        Array with the wavelength for each flux value.
+    old_sampling_type : string
+        Sampling type of the input array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    new_wave : numpy.ndarray
         DESCRIPTION.
-    old_wave : TYPE
-        DESCRIPTION.
-    old_sampling_type : TYPE
-        DESCRIPTION.
-    new_wave : TYPE
-        DESCRIPTION.
-    new_sampling_type : TYPE
-        DESCRIPTION.
-    flux_err : TYPE, optional
-        DESCRIPTION. The default is None.
+    new_sampling_type : string
+        Sampling type of the output array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    flux_err : numpy.ndarray, optional
+        Flux uncertainty (standard deviation). The default is None.
 
     Raises
     ------
@@ -154,8 +165,11 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    new_flux : numpy.ndarray
+        New array with fluxes after resampling.
+    new_flux_err : numpy.ndarray
+        Array with uncertainty in the form of standard deviation. If the
+        uncertainties are not passed returns None.
 
     """
     new_flux = np.zeros(shape = (new_wave.shape[0],) + flux[0,...].shape)
@@ -203,31 +217,35 @@ def _resampling_nd(flux, old_wave, old_sampling_type, new_wave,
 def resampling(flux, old_wave, old_sampling_type, new_wave, new_sampling_type,
                flux_err = None):
     """
-
+    Function for Spectral resampling. Examples of its application can be found
+    in https://github.com/luizsl/SpectCube/tree/main/spectcube/example
 
     Parameters
     ----------
-    flux : TYPE
+    flux : numpy.ndarray
+        Array with fluxes.
+    old_wave : numpy.ndarray
+        Array with the wavelength for each flux value.
+    old_sampling_type : string
+        Sampling type of the input array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    new_wave : numpy.ndarray
         DESCRIPTION.
-    old_wave : TYPE
-        DESCRIPTION.
-    old_sampling_type : TYPE
-        DESCRIPTION.
-    new_wave : TYPE
-        DESCRIPTION.
-    new_sampling_type : TYPE
-        DESCRIPTION.
-    flux_err : TYPE, optional
-        DESCRIPTION. The default is None.
+    new_sampling_type : string
+        Sampling type of the output array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+    flux_err : numpy.ndarray, optional
+        Flux uncertainty (standard deviation). The default is None.
 
     Returns
     -------
-    new_flux : TYPE
-        DESCRIPTION.
-    new_wave : TYPE
-        DESCRIPTION.
-    TYPE
-        DESCRIPTION.
+    new_flux : numpy.ndarray
+        New array with fluxes after resampling.
+    new_wave : numpy.ndarray
+        New array with wavelengths in which streams were sampled.
+    new_flux_err : numpy.ndarray
+        Array with uncertainty in the form of standard deviation. If the
+        uncertainties are not passed returns None.
 
     """
     assert old_sampling_type and new_sampling_type in ['linear', 'log', 'ln']
