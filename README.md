@@ -12,3 +12,7 @@ to update a previous version to the latest version use:
 ```
  pip --upgrade spectcube
 ```
+
+## Usage Examples
+
+Examples of using SpectCube are available in [examples](https://github.com/luizsl/SpectCube/tree/main/spectcube) and also locally in the site-packages/spectcube/example directory (If you want to find out where your packages are installed use ```python -m site``` or see either [video](https://www.youtube.com/watch?v=Nm2p9w05nVw) or [forum](https://stackoverflow.com/questions/31384639/what-is-pythons-site-packages-directory)). Data to be used in the examples are in [data](https://github.com/luizsl/SpectCube/tree/main/spectcube/data) and [model](https://github.com/luizsl/SpectCube/tree/main/spectcube/model). More detailed documentation will be available soon.
