@@ -6,7 +6,8 @@ Created on Wed Jul  7 18:52:18 2021
 
 import numpy as np
 from scipy import interpolate
-from .util import _extend_dim, _reduce_dim
+# from .util import _extend_dim, _reduce_dim
+from spectcube.util import _extend_dim, _reduce_dim
 
 
 def _build_edges_nd(wave, sampling_type):

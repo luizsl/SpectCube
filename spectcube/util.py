@@ -1,9 +1,74 @@
 """
 @author: Luiz Albérico
 """
+# __all__ = []
 
-import numpy as _np
+import numpy as np
 
+def _build_edges_nd(wave, sampling_type):
+    """
+    Currently not used
+
+    Parameters
+    ----------
+    wave : numpy.ndarray
+        Array with the wavelengths.
+    sampling_type : string
+        Sampling type of the array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+
+    Returns
+    -------
+    edges : numpy.ndarray
+        Array with the edges of the wavelength bins.
+
+    """
+    if sampling_type == 'linear':
+        step = wave[[1], ...] - wave[[0], ...]
+        edges = wave[[0], ...] - step/2.
+        edges = np.append(edges, wave + step/2., axis = 0)
+    elif sampling_type == 'log':
+        step = np.log10(wave[[1], ...]/wave[[0], ...])
+        edges = wave[[0], ...] / 10.**(step/2.)
+        edges = np.append(edges, wave * 10.**(step/2.), axis = 0)
+    elif sampling_type == 'ln':
+        step = np.log(wave[[1], ...]/wave[[0], ...])
+        edges = wave[[0], ...] / np.e**(step/2.)
+        edges = np.append(edges, wave * np.e**(step/2.), axis = 0)
+    return edges
+
+def _build_edges(wave, sampling_type):
+    """
+    Calculates edges of bins of given wavelength given the center value of the
+    bin and the type of sampling.
+
+    Parameters
+    ----------
+    wave : numpy.ndarray
+        Array with the wavelengths.
+    sampling_type : string
+        Sampling type of the array. It can be either linear ('linear'),
+        natural logarithm ('ln') or base 10 logarithm (log).
+
+    Returns
+    -------
+    edges : numpy.ndarray
+        Array with the edges of the wavelength bins.
+
+    """
+    if sampling_type == 'linear':
+        step = wave[1] - wave[0]
+        edges = wave[0] - step/2.
+        edges = np.append(edges, wave + step/2.)
+    elif sampling_type == 'log':
+        step = np.log10(wave[1]/wave[0])
+        edges = wave[0] / 10.**(step/2.)
+        edges = np.append(edges, wave * 10.**(step/2.))
+    elif sampling_type == 'ln':
+        step = np.log(wave[1]/wave[0])
+        edges = wave[0] / np.e**(step/2.)
+        edges = np.append(edges, wave * np.e**(step/2.))
+    return edges
 
 def _extend_dim(array):
     """
@@ -29,9 +94,9 @@ def _extend_dim(array):
     if array.ndim == 3:
         pass
     elif array.ndim == 1:
-        array = array[..., _np.newaxis, _np.newaxis]
+        array = array[..., np.newaxis, np.newaxis]
     elif array.ndim == 2:
-        array = array[..., _np.newaxis]
+        array = array[..., np.newaxis]
     else:
         raise TypeError
 
@@ -87,11 +152,11 @@ def _wave_array_nd(wave, sampling_type, size):
     wave_array : np.ndarray
         Array with wavelength values
     """
-    wave = _np.array(wave)
+    wave = np.array(wave)
     wave = _extend_dim(wave)
 
-    wave_array = _np.empty((size,) + wave[0, ...].shape)
-    for i, j in _np.ndindex(wave[0, ...].shape):
+    wave_array = np.empty((size,) + wave[0, ...].shape)
+    for i, j in np.ndindex(wave[0, ...].shape):
         wave_array[:, i, j] = build_wave_array(wave[:, i, j],
                                                sampling_type,
                                                size)
@@ -154,24 +219,24 @@ def build_wave_array(wave, sampling_type, size):
     """
     assert sampling_type in ['linear', 'log', 'ln']
 
-    if _np.array(wave).ndim > 1:
+    if np.array(wave).ndim > 1:
         wave_array = _wave_array_nd(wave, sampling_type, size)
         return wave_array
 
-    wave_array = wave[0] + _np.arange(size, dtype = _np.double)*wave[1]
+    wave_array = wave[0] + np.arange(size)*wave[1]
 
     if sampling_type == 'linear':
         return wave_array
     if sampling_type == 'log':
-        wave_array = _np.double(10.)**wave_array
+        wave_array = 10.**wave_array
         return wave_array
     if sampling_type == 'ln':
-        wave_array = _np.e**wave_array
+        wave_array = np.e**wave_array
         return wave_array
 
     raise TypeError
 
-def fit_wave_interval(wave, sampling_type, size):
+def fit_wave_interval(wave, old_sampling, new_sampling, new_size = None):
     """
     Produces an array of wavelengths between two values and with a given number
     of elements.
@@ -208,15 +273,42 @@ def fit_wave_interval(wave, sampling_type, size):
            3044.03988657, 3055.15050608, 3066.30167889, 3077.49355302,
            3088.72627702, 3100.        ])
     """
-    assert sampling_type in ['linear', 'log', 'ln']
+    # global old_edge, step, lower_edge, upper_edge
+    assert old_sampling and new_sampling in ['linear', 'log', 'ln']
+    
+    if new_size is None:
+        new_size = len(wave)
+    # wave = wave_model
+    # old_sampling = 'linear'
+    # new_size = 4300
+    old_edge = _build_edges(wave = wave, sampling_type = old_sampling)
+    lower_edge = old_edge[0]
+    upper_edge = old_edge[-1]
+        
+    if new_sampling == 'linear':
+        step = (upper_edge - lower_edge) / (new_size)
+        
+        wave_array = np.linspace(lower_edge + step/1.99,
+                                 upper_edge - step/1.99,
+                                 num = new_size)
+    elif new_sampling == 'log':
+        lower_edge = np.log10(lower_edge)
+        upper_edge = np.log10(upper_edge)
+        step = (upper_edge - lower_edge) / (new_size)
+        
+        wave_array = np.logspace(lower_edge + step/1.99,
+                                 upper_edge - step/1.99,
+                                 num = new_size, base = 10.)
+    elif new_sampling == 'ln':
+        lower_edge = np.log(lower_edge)
+        upper_edge = np.log(upper_edge)
+        step = (upper_edge - lower_edge) / (new_size)
+        
+        wave_array = np.logspace(lower_edge + step/1.99,
+                                 upper_edge - step/1.99,
+                                 num = new_size, base = np.e)
 
-    if sampling_type == 'linear':
-        wave_array = _np.linspace(wave[0], wave[1], size, dtype = _np.double)
-    elif sampling_type == 'log':
-        wave_array = _np.logspace(_np.log10(wave[0]), _np.log10(wave[1]),
-                                  num = size, base = _np.double(10.),
-                                  dtype = _np.double)
-    elif sampling_type == 'ln':
-        wave_array = _np.logspace(_np.log(wave[0]), _np.log(wave[1]),
-                                  num = size, base = _np.e, dtype = _np.double)
+    # wave_array[[0,-1]] = wave[0], wave[1]
     return wave_array
+
+# novo = fit_wave_interval(wave= wave_model, old_sampling = 'linear', new_sampling = 'log')
