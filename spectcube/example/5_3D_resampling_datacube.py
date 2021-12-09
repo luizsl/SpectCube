@@ -37,12 +37,11 @@ def run_example_5():
     cube_flux = np.tile(obs_flux.reshape((-1,1,1)), (1,2,2)) + np.array([[0, 30],
                                                                          [60, 90]])
     cube_err = np.tile(obs_err.reshape((-1,1,1)), (1,2,2))
-    
-    
-    
-    res_lam = sc.util.fit_wave_interval(wave = [obs_loglam[0], obs_loglam[-1]],
-                                        sampling_type = 'linear',
-                                        size = len(obs_loglam))
+
+    res_lam = sc.util.fit_wave_interval(wave = obs_loglam,
+                                        old_sampling = 'log',
+                                        new_sampling = 'linear',
+                                        new_size = len(obs_loglam))
     
     # Resampling
     res_cube, res_wave, res_err = sc.resampling(flux = cube_flux,

@@ -47,7 +47,7 @@ def run_example_1():
     plt.ylabel('Flux (arbitrary units)')
     
     # Now we are going to resample this model in new wavelength points.  For this
-    # we will create the new wavelenght array with the desired values. In this
+    # we will create the new wavelength array with the desired values. In this
     # example the array will start at 3541 A and end at 7409 A with 1 A spacing.
     res_lam = 3541 + np.arange(0, 3869, 1)
     

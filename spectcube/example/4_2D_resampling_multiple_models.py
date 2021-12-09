@@ -51,9 +51,10 @@ def run_example_4():
     # just changing linear sampling to sampling ln.
     # Again we employ sc.util and again it is possible to choose another options to
     # build a simple numpy array
-    res_lam = sc.util.fit_wave_interval(wave = [model_lam[0], model_lam[-1]],
-                                        sampling_type = 'ln',
-                                        size = model_len)
+    res_lam = sc.util.fit_wave_interval(wave = model_lam,
+                                        old_sampling = 'linear',
+                                        new_sampling = 'ln',
+                                        new_size = model_len)
     
     # Resampling
     res_model, res_wave, _ = sc.resampling(flux = model_flux,

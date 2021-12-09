@@ -35,13 +35,11 @@ def run_example_3():
     # util module function fit_wave_interval (see miles_model_with_util.py example)
     # to obtain the wavelength arry of observation sampled linearly with the same
     # number of pixels.
-    res_wave_start = obs_loglam[0]
-    res_wave_end = obs_loglam[-1]
     res_n_pixel = len(obs_loglam)
-    
-    res_lam = sc.util.fit_wave_interval(wave = [res_wave_start, res_wave_end],
-                                       sampling_type = 'linear',
-                                       size = res_n_pixel)
+    res_lam = sc.util.fit_wave_interval(wave = obs_loglam,
+                                        old_sampling = 'log',
+                                        new_sampling = 'linear',
+                                        new_size = res_n_pixel)
     
     # Using the resampling function with uncertainties. One need to pass as input
     # the original flux, the priginal wavelength array an its sample, the new

@@ -48,18 +48,14 @@ def run_example_2():
     # For this we will create the new wavelenght array with the desired values.
     # In this example the log array will have the same starting point, end point
     # and number of point thus the step value is the unknown here. We will employ
-    # another function of util module called fit_wave_interval whose input is the
-    # starting wavelength, the last wavelength, the number of points and the
-    # sampling type ('log' here).
-    res_wave_start = model_lam[0]
-    res_wave_end = model_lam[-1]
-    res_n_pixel = len(model_lam)
+    # another function of util module called fit_wave_interval whose input arguments
+    # original wavelength array, original sampling type (linear, log, ln), and
+    # the new wavelenght sampling sampling type ('log' here).    
+    res_lam = sc.util.fit_wave_interval(wave = model_lam,
+                                        old_sampling = 'linear',
+                                        new_sampling = 'log')
     
-    res_lam = sc.util.fit_wave_interval(wave = [res_wave_start, res_wave_end],
-                                        sampling_type = 'log',
-                                        size = res_n_pixel)
-    
-    # Using the resampling function. One need to pass as input the original flux,
+    # Using the resampling function. One need to pass as input arguments the original flux,
     # the priginal wavelength array an its sample, the new wavelength array and
     # the new sampling type
     res_model, res_wave, _ = sc.resampling(flux = model_flux,
